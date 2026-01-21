@@ -4,8 +4,8 @@
 *.dll
 *.so
 *.dylib
-server
-hytale-manager
+/server
+/hytale-manager
 
 # Test binary
 *.test
