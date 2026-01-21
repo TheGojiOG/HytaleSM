@@ -17,7 +17,7 @@ Run:
 ### Go
 Install Go from the official tarball. Check https://go.dev/dl/ for the latest version and set it below.
 Run:
-- GO_VERSION=1.22.4
+- GO_VERSION=1.25.6
 - curl -LO https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
 - sudo rm -rf /usr/local/go
 - sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
