@@ -12,7 +12,7 @@ This guide walks through installing prerequisites, configuring the project, and 
 ### System packages
 Run:
 - sudo apt-get update
-- sudo apt-get install -y git curl ca-certificates python3 build-essential
+- sudo apt-get install -y git curl ca-certificates python3 build-essential openssl
 
 ### Go
 Install Go from the official tarball. Check https://go.dev/dl/ for the latest version and set it below.
@@ -54,6 +54,20 @@ Run:
 - sudo -u hytale cp /opt/hytale-server-manager/configs/servers.example.yaml /opt/hytale-server-manager/configs/servers.yaml
 - sudo -u hytale cp /opt/hytale-server-manager/configs/tasks.example.yaml /opt/hytale-server-manager/configs/tasks.yaml
 
+Create a self-signed certificate for the frontend (HTTPS on port 443).
+Run:
+- sudo -u hytale mkdir -p /opt/hytale-server-manager/certs
+- sudo openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+	-keyout /opt/hytale-server-manager/certs/localhost.key \
+	-out /opt/hytale-server-manager/certs/localhost.crt \
+	-subj "/CN=$(hostname)"
+
+Add frontend HTTPS settings to /opt/hytale-server-manager/.env:
+- VITE_HTTPS_KEY=/opt/hytale-server-manager/certs/localhost.key
+- VITE_HTTPS_CERT=/opt/hytale-server-manager/certs/localhost.crt
+- VITE_HOST=0.0.0.0
+- VITE_PORT=443
+
 Review configs/config.yaml to confirm:
 - HTTP bind address and port
 - CORS allowlist
@@ -82,13 +96,13 @@ Check status:
 
 ## 7) First-Time Admin Setup
 Open the UI in a browser and create the first admin user:
-- http://<server-ip>:5173/setup
+- https://<server-ip>/setup
 
 ## 8) Firewall Notes
 If using UFW, allow the frontend and backend ports.
 Run:
 - sudo apt-get install -y ufw
-- sudo ufw allow 5173/tcp
+- sudo ufw allow 443/tcp
 - sudo ufw allow 8080/tcp
 - sudo ufw enable
 - sudo ufw status
@@ -96,6 +110,11 @@ Run:
 ## 9) Logs and Troubleshooting
 Run:
 - sudo journalctl -u hytale-server-manager -f
+
+Note: Binding to port 443 requires elevated privileges. If the service runs as a non-root user, either:
+- Set capability on Node.js:
+	- sudo setcap 'cap_net_bind_service=+ep' $(command -v node)
+- Or change VITE_PORT to a higher port (e.g., 5173) and use a reverse proxy.
 
 Notes:
 - Backend output: server_control.py runs in foreground under the service.

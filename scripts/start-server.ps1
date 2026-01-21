@@ -46,6 +46,17 @@ function Ensure-EnvFileSecrets() {
 
 Ensure-EnvFileSecrets
 
+if (Test-Path $envFile) {
+  Get-Content $envFile | ForEach-Object {
+    if ($_ -match '^VITE_[A-Z0-9_]+=') {
+      $parts = $_.Split('=', 2)
+      if ($parts.Length -eq 2) {
+        $env:$($parts[0]) = $parts[1]
+      }
+    }
+  }
+}
+
 Write-Host "Starting backend (go run) in a new PowerShell window..." -ForegroundColor Cyan
 Start-Process pwsh -ArgumentList @(
   '-NoExit',

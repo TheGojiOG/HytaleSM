@@ -62,6 +62,18 @@ touch "$env_file"
 ensure_env_secret JWT_SECRET
 ensure_env_secret ENCRYPTION_KEY
 
+export_vite_env() {
+  if [[ -f "$env_file" ]]; then
+    while IFS= read -r line; do
+      [[ -z "$line" || "$line" == \#* ]] && continue
+      [[ "$line" == VITE_* ]] || continue
+      export "$line"
+    done < "$env_file"
+  fi
+}
+
+export_vite_env
+
 if [[ "$mode" == "service" ]]; then
   echo "Starting backend (go run) in service mode..."
   (
