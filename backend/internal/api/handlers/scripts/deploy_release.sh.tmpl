@@ -1,0 +1,97 @@
+set -euo pipefail
+
+SERVICE_USER="{{SERVICE_USER}}"
+INSTALL_DIR="{{INSTALL_DIR}}"
+PACKAGE_PATH="{{PACKAGE_PATH}}"
+PACKAGE_SHA256="{{PACKAGE_SHA256}}"
+USE_SUDO={{USE_SUDO}}
+ENABLE_STRING_DEDUP={{ENABLE_STRING_DEDUP}}
+ENABLE_AOT={{ENABLE_AOT}}
+ENABLE_BACKUP={{ENABLE_BACKUP}}
+BACKUP_DIR="{{BACKUP_DIR}}"
+BACKUP_FREQUENCY="{{BACKUP_FREQUENCY}}"
+ASSETS_PATH="{{ASSETS_PATH}}"
+JAVA_XMS="{{JAVA_XMS}}"
+JAVA_XMX="{{JAVA_XMX}}"
+JAVA_METASPACE="{{JAVA_METASPACE}}"
+EXTRA_JAVA_ARGS="{{EXTRA_JAVA_ARGS}}"
+EXTRA_SERVER_ARGS="{{EXTRA_SERVER_ARGS}}"
+SERVER_DIR="{{SERVER_DIR}}"
+
+SUDO=''
+if [ "$USE_SUDO" = "1" ] && [ $(id -u) -ne 0 ]; then SUDO='sudo'; fi
+CURRENT_USER="$(id -un)"
+if [ -z "$SUDO" ] && [ "$CURRENT_USER" != "$SERVICE_USER" ]; then
+  echo "Error: install requires root or sudo when service user differs (current: ${CURRENT_USER}, target: ${SERVICE_USER})"
+  exit 1
+fi
+
+echo "Deploying release from ${PACKAGE_PATH} to ${INSTALL_DIR}"
+
+if [ ! -f "$PACKAGE_PATH" ]; then
+  echo "Error: package not found at ${PACKAGE_PATH}"
+  exit 1
+fi
+
+if [ -n "$PACKAGE_SHA256" ]; then
+  if command -v sha256sum >/dev/null 2>&1; then
+    FILE_HASH=$(sha256sum "$PACKAGE_PATH" | awk '{print $1}')
+  elif command -v shasum >/dev/null 2>&1; then
+    FILE_HASH=$(shasum -a 256 "$PACKAGE_PATH" | awk '{print $1}')
+  elif command -v openssl >/dev/null 2>&1; then
+    FILE_HASH=$(openssl dgst -sha256 "$PACKAGE_PATH" | awk '{print $2}')
+  else
+    echo "Error: no SHA256 tool available to verify package"
+    exit 1
+  fi
+
+  if [ "$FILE_HASH" != "$PACKAGE_SHA256" ]; then
+    echo "Error: package SHA256 mismatch"
+    exit 1
+  fi
+fi
+
+if [ -n "$SUDO" ]; then
+  $SUDO mkdir -p "$INSTALL_DIR"
+  $SUDO -u "$SERVICE_USER" unzip -o "$PACKAGE_PATH" -d "$INSTALL_DIR"
+  $SUDO chown -R "$SERVICE_USER":"$SERVICE_USER" "$INSTALL_DIR"
+  $SUDO rm -f "$PACKAGE_PATH"
+else
+  mkdir -p "$INSTALL_DIR"
+  unzip -o "$PACKAGE_PATH" -d "$INSTALL_DIR"
+  rm -f "$PACKAGE_PATH"
+fi
+
+if [ ! -d "$SERVER_DIR" ]; then
+  if [ -d "$INSTALL_DIR/server" ]; then
+    SERVER_DIR="$INSTALL_DIR/server"
+  fi
+fi
+
+if [ ! -f "$SERVER_DIR/HytaleServer.jar" ]; then
+  echo "Error: Required files not found! Missing $SERVER_DIR/HytaleServer.jar"
+  ls -la "$SERVER_DIR" || true
+  exit 1
+fi
+
+if [ ! -f "$ASSETS_PATH" ]; then
+  if [ -f "$INSTALL_DIR/Assets.zip" ]; then
+    ASSETS_PATH="$INSTALL_DIR/Assets.zip"
+  elif [ -f "$SERVER_DIR/Assets.zip" ]; then
+    ASSETS_PATH="$SERVER_DIR/Assets.zip"
+  else
+    echo "Error: Required files not found! Missing Assets.zip"
+    ls -la "$INSTALL_DIR" || true
+    ls -la "$SERVER_DIR" || true
+    exit 1
+  fi
+fi
+
+if [ -n "$SUDO" ]; then
+  $SUDO -u "$SERVICE_USER" mkdir -p "$INSTALL_DIR/Backups" "$SERVER_DIR/Logs"
+  $SUDO chown -R "$SERVICE_USER":"$SERVICE_USER" "$INSTALL_DIR"
+else
+  mkdir -p "$INSTALL_DIR/Backups" "$SERVER_DIR/Logs"
+fi
+
+echo "Deploy complete. Files placed in $INSTALL_DIR"

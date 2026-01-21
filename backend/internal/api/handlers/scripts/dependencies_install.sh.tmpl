@@ -1,0 +1,153 @@
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
+
+echo "== Hytale dependency install =="
+echo "User: $(whoami) (uid=$(id -u))"
+if [ -f /etc/os-release ]; then
+  echo "OS:"; cat /etc/os-release
+fi
+
+SKIP_UPDATE={{SKIP_UPDATE}}
+USE_SUDO={{USE_SUDO}}
+CREATE_USER={{CREATE_USER}}
+SERVICE_USER="{{SERVICE_USER}}"
+SERVICE_GROUPS="{{SERVICE_GROUPS}}"
+INSTALL_DIR="{{INSTALL_DIR}}"
+
+if [ "$USE_SUDO" != "1" ] && [ $(id -u) -ne 0 ]; then
+  echo "Use sudo was disabled but user is not root; forcing sudo on."
+  USE_SUDO=1
+fi
+
+echo "Use sudo: ${USE_SUDO}"
+
+SUDO=''
+if [ "$USE_SUDO" = "1" ] && [ $(id -u) -ne 0 ]; then SUDO='sudo'; fi
+CURRENT_USER="$(id -un)"
+if [ -z "$SUDO" ] && [ "$CURRENT_USER" != "$SERVICE_USER" ]; then
+  echo "Error: install requires root or sudo when service user differs (current: ${CURRENT_USER}, target: ${SERVICE_USER})"
+  exit 1
+fi
+echo "SUDO command: ${SUDO:-none}"
+
+if ! command -v apt-get >/dev/null 2>&1; then
+  echo 'Unsupported package manager. Debian/apt-get is required for now.'
+  exit 2
+fi
+
+if [ "$USE_SUDO" = "1" ] && [ $(id -u) -ne 0 ] && ! command -v sudo >/dev/null 2>&1; then
+  echo 'sudo is required but not installed or not available.'
+  exit 3
+fi
+
+if [ "$SKIP_UPDATE" != "1" ]; then
+  echo "Updating system packages..."
+  $SUDO apt-get update -y
+  $SUDO apt-get upgrade -y
+fi
+
+echo "Installing prerequisites..."
+$SUDO apt-get install -y curl wget unzip gnupg lsb-release ca-certificates
+
+if ! command -v go >/dev/null 2>&1; then
+  echo "Installing Go toolchain..."
+  $SUDO apt-get install -y golang
+else
+  echo "Go already installed: $(go version)"
+fi
+
+echo "Configuring Adoptium repo..."
+$SUDO mkdir -p /usr/share/keyrings
+curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public \
+  | $SUDO gpg --batch --yes --dearmor -o /usr/share/keyrings/adoptium.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $(lsb_release -cs) main" \
+  | $SUDO tee /etc/apt/sources.list.d/adoptium.list >/dev/null
+
+echo "Installing Java 25..."
+$SUDO apt-get update -y
+$SUDO apt-get install -y temurin-25-jdk
+
+java --version | head -n1
+
+echo "Installing process-exporter..."
+PROCESS_EXPORTER_VERSION="0.8.2"
+ARCH="$(uname -m)"
+case "$ARCH" in
+  x86_64|amd64) ARCH="amd64";;
+  aarch64|arm64) ARCH="arm64";;
+  *) echo "Unsupported architecture for process-exporter: $ARCH"; exit 4;;
+esac
+
+PROCESS_EXPORTER_URL="https://github.com/ncabatoff/process-exporter/releases/download/v${PROCESS_EXPORTER_VERSION}/process-exporter-${PROCESS_EXPORTER_VERSION}.linux-${ARCH}.tar.gz"
+TMP_DIR="/tmp/process-exporter-${PROCESS_EXPORTER_VERSION}"
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
+curl -fsSL "$PROCESS_EXPORTER_URL" -o "$TMP_DIR/process-exporter.tar.gz"
+tar -xzf "$TMP_DIR/process-exporter.tar.gz" -C "$TMP_DIR"
+$SUDO install -m 0755 "$TMP_DIR/process-exporter-${PROCESS_EXPORTER_VERSION}.linux-${ARCH}/process-exporter" /usr/local/bin/process-exporter
+
+if ! id -u process-exporter >/dev/null 2>&1; then
+  $SUDO adduser --system --no-create-home --disabled-login --group process-exporter
+fi
+
+$SUDO mkdir -p /etc/process-exporter
+cat <<'EOF' | $SUDO tee /etc/process-exporter/config.yml >/dev/null
+process_names:
+  - name: "java_hytale"
+    cmdline:
+      - "java"
+      - "HytaleServer.jar"
+  - name: "java"
+    cmdline:
+      - "java"
+EOF
+
+cat <<'EOF' | $SUDO tee /etc/systemd/system/process-exporter.service >/dev/null
+[Unit]
+Description=Prometheus Process Exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=process-exporter
+Group=process-exporter
+ExecStart=/usr/local/bin/process-exporter --config.path=/etc/process-exporter/config.yml
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+$SUDO systemctl daemon-reload
+$SUDO systemctl enable --now process-exporter
+
+if [ "$CREATE_USER" = "1" ]; then
+  echo "Ensuring service user ${SERVICE_USER}..."
+  if ! id -u "$SERVICE_USER" >/dev/null 2>&1; then
+    $SUDO adduser --disabled-password --gecos "" "$SERVICE_USER"
+  fi
+  if [ -n "$SERVICE_GROUPS" ]; then
+    $SUDO usermod -aG "$SERVICE_GROUPS" "$SERVICE_USER"
+  fi
+fi
+
+TARGET_DIR="$INSTALL_DIR"
+
+if [ "$CREATE_USER" = "1" ]; then
+  USER_HOME=$(getent passwd "$SERVICE_USER" | cut -d: -f6)
+  if [ -n "$USER_HOME" ] && [ "${TARGET_DIR#\~}" != "$TARGET_DIR" ]; then
+    TARGET_DIR="$USER_HOME${TARGET_DIR#\~}"
+  fi
+  echo "Creating install directories in ${TARGET_DIR} as ${SERVICE_USER}"
+  $SUDO su - "$SERVICE_USER" -c "mkdir -p '$TARGET_DIR' '$TARGET_DIR/Server' '$TARGET_DIR/Backups'"
+else
+  case "$TARGET_DIR" in
+    ~*) TARGET_DIR="$HOME${TARGET_DIR#\~}";;
+  esac
+  echo "Creating install directories in ${TARGET_DIR}"
+  mkdir -p "$TARGET_DIR" "$TARGET_DIR/Server" "$TARGET_DIR/Backups"
+fi
+
+echo "Install complete."

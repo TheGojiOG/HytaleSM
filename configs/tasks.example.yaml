@@ -1,0 +1,19 @@
+tasks:
+  - id: daily-backup-all
+    name: "Daily Backup - All Servers"
+    enabled: true
+    schedule: "0 3 * * *"  # Daily at 3 AM
+    action: backup
+    targets:
+      - survival-01
+    
+  - id: restart-survival
+    name: "Restart Survival Server"
+    enabled: true
+    schedule: "0 */6 * * *"  # Every 6 hours
+    action: restart
+    targets:
+      - survival-01
+    options:
+      warning_message: "Server restarting in 5 minutes!"
+      warning_delay: 300  # seconds

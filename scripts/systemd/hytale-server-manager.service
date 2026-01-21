@@ -1,0 +1,18 @@
+[Unit]
+Description=Hytale Server Manager (backend + frontend dev)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/hytale-server-manager
+EnvironmentFile=/opt/hytale-server-manager/.env
+ExecStart=/bin/bash /opt/hytale-server-manager/scripts/start-server.sh --service
+ExecStop=/bin/bash /opt/hytale-server-manager/scripts/stop-server.sh
+Restart=always
+RestartSec=5
+User=hytale
+Group=hytale
+
+[Install]
+WantedBy=multi-user.target

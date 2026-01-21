@@ -1,0 +1,135 @@
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
+
+echo "== Hytale agent install =="
+
+echo "User: $(whoami) (uid=$(id -u))"
+if [ -f /etc/os-release ]; then
+  echo "OS:"; cat /etc/os-release
+fi
+
+USE_SUDO={{USE_SUDO}}
+AGENT_USER="{{AGENT_USER}}"
+AGENT_SERVER_ADDR="{{AGENT_SERVER_ADDR}}"
+AGENT_STAGED_BIN="{{AGENT_STAGED_BIN}}"
+AGENT_HTTPS_CERTS_DIR="{{AGENT_HTTPS_CERTS_DIR}}"
+
+if [ "$USE_SUDO" != "1" ] && [ $(id -u) -ne 0 ]; then
+  echo "Use sudo was disabled but user is not root; forcing sudo on."
+  USE_SUDO=1
+fi
+
+SUDO=''
+if [ "$USE_SUDO" = "1" ] && [ $(id -u) -ne 0 ]; then SUDO='sudo'; fi
+
+echo "Use sudo: ${USE_SUDO}"
+
+if ! id -u "$AGENT_USER" >/dev/null 2>&1; then
+  echo "Creating agent user ${AGENT_USER}..."
+  $SUDO adduser --system --no-create-home --disabled-login --group "$AGENT_USER"
+fi
+
+if [ ! -f "$AGENT_STAGED_BIN" ]; then
+  echo "Staged agent binary not found at ${AGENT_STAGED_BIN}"
+  exit 5
+fi
+
+echo "Installing agent binary from ${AGENT_STAGED_BIN}..."
+$SUDO install -m 0755 "$AGENT_STAGED_BIN" /usr/local/bin/hytale-agent
+
+if [ ! -f "$AGENT_HTTPS_CERTS_DIR/server.crt" ] || [ ! -f "$AGENT_HTTPS_CERTS_DIR/server.key" ] || [ ! -f "$AGENT_HTTPS_CERTS_DIR/ca.crt" ]; then
+  echo "Staged HTTPS certs not found in ${AGENT_HTTPS_CERTS_DIR}"
+  exit 6
+fi
+
+$SUDO mkdir -p /etc/hytale-agent/https
+$SUDO cp -f "$AGENT_HTTPS_CERTS_DIR/server.crt" /etc/hytale-agent/https/server.crt
+$SUDO cp -f "$AGENT_HTTPS_CERTS_DIR/server.key" /etc/hytale-agent/https/server.key
+$SUDO cp -f "$AGENT_HTTPS_CERTS_DIR/ca.crt" /etc/hytale-agent/https/ca.crt
+$SUDO chown -R "$AGENT_USER":"$AGENT_USER" /etc/hytale-agent/https
+$SUDO chmod 600 /etc/hytale-agent/https/server.key
+$SUDO chmod 644 /etc/hytale-agent/https/server.crt /etc/hytale-agent/https/ca.crt
+
+cat <<EOF | $SUDO tee /etc/hytale-agent/bootstrap.json >/dev/null
+{
+  "server_addr": "${AGENT_SERVER_ADDR}",
+  "cert_file": "/etc/hytale-agent/https/server.crt",
+  "key_file": "/etc/hytale-agent/https/server.key",
+  "ca_file": "/etc/hytale-agent/https/server.crt",
+  "monitor_config_path": "/etc/hytale-agent/monitor-config.json"
+}
+EOF
+
+cat <<'EOF' | $SUDO tee /etc/hytale-agent/monitor-config.json >/dev/null
+{
+  "version": 1,
+  "services": [],
+  "ports": [],
+  "interval_ms": 500
+}
+EOF
+
+cat <<'EOF' | $SUDO tee /etc/polkit-1/rules.d/50-hytale-agent.rules >/dev/null
+polkit.addRule(function(action, subject) {
+    if (subject.user === "hytale-agent" &&
+        action.id === "org.freedesktop.systemd1.manage-units") {
+        return polkit.Result.YES;
+    }
+});
+EOF
+
+# Allow agent to run network inspection commands without password
+cat <<'EOF' | $SUDO tee /etc/sudoers.d/hytale-agent >/dev/null
+# Allow hytale-agent to inspect network sockets and processes
+hytale-agent ALL=(ALL) NOPASSWD: /usr/bin/ss, /usr/sbin/ss, /bin/ss
+hytale-agent ALL=(ALL) NOPASSWD: /usr/bin/netstat, /bin/netstat
+hytale-agent ALL=(ALL) NOPASSWD: /usr/bin/lsof, /usr/sbin/lsof
+EOF
+$SUDO chmod 0440 /etc/sudoers.d/hytale-agent
+
+cat <<'EOF' | $SUDO tee /etc/systemd/system/hytale-agent.service >/dev/null
+[Unit]
+Description=Hytale lightweight monitoring agent
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/hytale-agent --bootstrap /etc/hytale-agent/bootstrap.json --state-addr 0.0.0.0:9443 --state-cert /etc/hytale-agent/https/server.crt --state-key /etc/hytale-agent/https/server.key --state-ca /etc/hytale-agent/https/ca.crt
+Restart=always
+RestartSec=2
+User=hytale-agent
+Group=hytale-agent
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/proc
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+$SUDO systemctl daemon-reload
+$SUDO systemctl enable --now hytale-agent
+$SUDO systemctl restart hytale-agent
+
+echo "Checking agent listener on 9443..."
+sleep 1
+if command -v ss >/dev/null 2>&1; then
+  $SUDO ss -lntp | grep ':9443' || echo "Warning: agent not listening on 9443."
+elif command -v netstat >/dev/null 2>&1; then
+  $SUDO netstat -lntp 2>/dev/null | grep ':9443' || echo "Warning: agent not listening on 9443."
+else
+  echo "Warning: neither ss nor netstat available to verify listener."
+fi
+
+echo "Agent service status:"
+$SUDO systemctl --no-pager -l status hytale-agent || true
+
+echo "Agent cert permissions:"
+$SUDO ls -l /etc/hytale-agent/https || true
+
+echo "Recent agent logs:"
+$SUDO journalctl -u hytale-agent --no-pager -n 80 || true
+
+echo "Agent install complete."

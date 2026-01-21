@@ -1,0 +1,43 @@
+set -euo pipefail
+
+SERVICE_USER="{{SERVICE_USER}}"
+INSTALL_DIR="{{INSTALL_DIR}}"
+
+JAVA_LINE=$(java --version 2>/dev/null | head -n1 || true)
+if echo "$JAVA_LINE" | grep -qi "openjdk 25"; then
+  JAVA_OK=1
+else
+  JAVA_OK=0
+fi
+
+if id -u "$SERVICE_USER" >/dev/null 2>&1; then
+  USER_OK=1
+  USER_HOME=$(getent passwd "$SERVICE_USER" | cut -d: -f6)
+else
+  USER_OK=0
+  USER_HOME=""
+fi
+
+TARGET_DIR="$INSTALL_DIR"
+case "$TARGET_DIR" in
+  ~*)
+    if [ -n "$USER_HOME" ]; then
+      TARGET_DIR="$USER_HOME${TARGET_DIR#\~}"
+    else
+      TARGET_DIR="${TARGET_DIR#\~}"
+    fi
+    ;;
+esac
+
+if [ -d "$TARGET_DIR" ]; then
+  DIR_OK=1
+else
+  DIR_OK=0
+fi
+
+echo "JAVA_OK=${JAVA_OK}"
+echo "JAVA_LINE=${JAVA_LINE}"
+echo "USER_OK=${USER_OK}"
+echo "USER_HOME=${USER_HOME}"
+echo "DIR_OK=${DIR_OK}"
+echo "DIR_PATH=${TARGET_DIR}"

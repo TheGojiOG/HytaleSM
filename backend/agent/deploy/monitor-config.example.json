@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "services": [
+    "hytale.service",
+    "node_exporter.service"
+  ],
+  "ports": [5520],
+  "interval_ms": 500
+}

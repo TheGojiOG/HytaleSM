@@ -1,0 +1,42 @@
+servers:
+  - id: survival-01
+    name: "Main Survival Server"
+    description: "Primary survival world"
+    
+    connection:
+      host: 192.168.1.100
+      port: 22
+      username: hytale
+      auth_method: key
+      key_path: /home/user/.ssh/id_rsa
+    
+    server:
+      working_directory: /opt/hytale/survival-01
+      executable: server.jar
+      java_args: "-Xmx4G -Xms2G"
+      process_manager: screen
+      screen_session_name: hytale-survival-01
+    
+    backups:
+      enabled: true
+      schedule: "0 3 * * *"  # Daily at 3 AM
+      directories:
+        - world
+        - plugins
+        - config
+      retention:
+        count: 7  # Keep last 7 backups
+      destinations:
+        - type: local
+          path: /opt/hytale/backups/survival-01
+    
+    monitoring:
+      enabled: true
+      interval: 30  # seconds
+      metrics:
+        - cpu
+        - memory
+        - disk
+        - players
+      node_exporter_port: 9100
+      # node_exporter_url: "http://192.168.1.100:9100/metrics"

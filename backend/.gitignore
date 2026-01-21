@@ -1,0 +1,45 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+server
+hytale-manager
+
+# Test binary
+*.test
+
+# Coverage
+*.out
+coverage.html
+
+# Go workspace file
+go.work
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Application data
+*.db
+*.db-shm
+*.db-wal
+data/
+logs/
+backups/
+
+# Configuration files (keep examples)
+config.yaml
+servers.yaml
+tasks.yaml
+
+# Environment
+.env
+.env.local
+
+# macOS
+.DS_Store

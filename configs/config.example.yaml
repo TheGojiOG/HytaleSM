@@ -1,0 +1,55 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+  tls:
+    enabled: false
+    cert_file: /etc/hytale-manager/cert.pem
+    key_file: /etc/hytale-manager/key.pem
+
+database:
+  path: ./data/hytale-manager.db
+  max_connections: 25
+
+auth:
+  # IMPORTANT: Change this in production! Use environment variable JWT_SECRET
+  jwt_secret: ${JWT_SECRET}
+  access_token_duration: 15m
+  refresh_token_duration: 168h  # 7 days
+  bcrypt_cost: 12
+
+security:
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+  cors:
+    allowed_origins:
+      - "http://localhost:5173"
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+  ssh:
+    known_hosts_path: ./data/known_hosts
+    trust_on_first_use: true
+
+storage:
+  config_dir: ./configs
+  backup_dir: ./data/backups
+  data_dir: ./data
+  releases_dir: ./hytale_repo
+  downloader_dir: ./hytale_repo/hytale-downloader
+
+logging:
+  level: info  # debug, info, warn, error
+  format: json
+  file: ""  # Empty for stdout
+  max_size: 100  # MB
+  max_backups: 5
+  max_age: 30  # days
+
+metrics:
+  enabled: true
+  default_interval: 60
+  retention_days: 2

@@ -1,0 +1,8 @@
+{
+  "server_addr": "control-plane.example.com:9443",
+  "host_uuid": "",
+  "cert_file": "/etc/hytale-agent/certs/agent.crt",
+  "key_file": "/etc/hytale-agent/certs/agent.key",
+  "ca_file": "/etc/hytale-agent/certs/ca.crt",
+  "monitor_config_path": "/etc/hytale-agent/monitor-config.json"
+}

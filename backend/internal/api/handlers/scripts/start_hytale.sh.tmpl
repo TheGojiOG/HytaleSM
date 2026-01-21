@@ -1,0 +1,47 @@
+#!/bin/bash
+set -e
+
+SERVER_DIR="{{SERVER_DIR}}"
+ASSETS_PATH="{{ASSETS_PATH}}"
+BACKUP_DIR="{{BACKUP_DIR}}"
+BACKUP_FREQUENCY="{{BACKUP_FREQUENCY}}"
+JAVA_XMS="{{JAVA_XMS}}"
+JAVA_XMX="{{JAVA_XMX}}"
+JAVA_METASPACE="{{JAVA_METASPACE}}"
+ENABLE_STRING_DEDUP={{ENABLE_STRING_DEDUP}}
+ENABLE_AOT={{ENABLE_AOT}}
+ENABLE_BACKUP={{ENABLE_BACKUP}}
+EXTRA_JAVA_ARGS="{{EXTRA_JAVA_ARGS}}"
+EXTRA_SERVER_ARGS="{{EXTRA_SERVER_ARGS}}"
+
+cd "$SERVER_DIR" || exit 1
+
+if [ ! -f "HytaleServer.jar" ] || [ ! -f "$ASSETS_PATH" ]; then
+    echo "Error: Required files not found!"
+    exit 1
+fi
+
+mkdir -p "$BACKUP_DIR" "$SERVER_DIR/Logs"
+
+LOG_FILE="$SERVER_DIR/Logs/server-$(date +%Y%m%d-%H%M%S).log"
+
+JAVA_ARGS=""
+if [ "$JAVA_XMS" != "" ]; then JAVA_ARGS="$JAVA_ARGS -Xms$JAVA_XMS"; fi
+if [ "$JAVA_XMX" != "" ]; then JAVA_ARGS="$JAVA_ARGS -Xmx$JAVA_XMX"; fi
+if [ "$JAVA_METASPACE" != "" ]; then JAVA_ARGS="$JAVA_ARGS -XX:MaxMetaspaceSize=$JAVA_METASPACE"; fi
+if [ "$ENABLE_STRING_DEDUP" = "1" ]; then JAVA_ARGS="$JAVA_ARGS -XX:+UseStringDeduplication"; fi
+if [ "$ENABLE_AOT" = "1" ]; then JAVA_ARGS="$JAVA_ARGS -XX:AOTCache=HytaleServer.aot"; fi
+if [ "$EXTRA_JAVA_ARGS" != "" ]; then JAVA_ARGS="$JAVA_ARGS $EXTRA_JAVA_ARGS"; fi
+
+SERVER_ARGS=""
+if [ "$ENABLE_BACKUP" = "1" ]; then
+  SERVER_ARGS="$SERVER_ARGS --backup --backup-dir $BACKUP_DIR --backup-frequency $BACKUP_FREQUENCY"
+fi
+if [ "$EXTRA_SERVER_ARGS" != "" ]; then SERVER_ARGS="$SERVER_ARGS $EXTRA_SERVER_ARGS"; fi
+
+echo "=========================================="
+echo "Hytale Server Starting"
+echo "=========================================="
+echo ""
+
+java $JAVA_ARGS -jar HytaleServer.jar --assets "$ASSETS_PATH" $SERVER_ARGS 2>&1 | tee "$LOG_FILE"

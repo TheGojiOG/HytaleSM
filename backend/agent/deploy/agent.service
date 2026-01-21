@@ -1,0 +1,19 @@
+[Unit]
+Description=Hytale lightweight monitoring agent
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/hytale-agent --bootstrap /etc/hytale-agent/bootstrap.json
+Restart=always
+RestartSec=2
+User=hytale-agent
+Group=hytale-agent
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/proc
+
+[Install]
+WantedBy=multi-user.target
