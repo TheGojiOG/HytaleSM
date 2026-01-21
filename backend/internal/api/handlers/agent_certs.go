@@ -11,9 +11,9 @@ import (
 	"archive/tar"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/hytale-server-manager/internal/agentcert"
-	"github.com/yourusername/hytale-server-manager/internal/config"
-	"github.com/yourusername/hytale-server-manager/internal/database"
+	"github.com/TheGojiOG/HytaleSM/internal/agentcert"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/database"
 )
 
 type AgentHandler struct {

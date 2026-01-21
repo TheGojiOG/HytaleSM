@@ -5,7 +5,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/yourusername/hytale-server-manager/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
 )
 
 // BuildDefaultSchedule returns the default nightly backup schedule for a server.

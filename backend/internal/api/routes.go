@@ -5,17 +5,17 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/hytale-server-manager/internal/api/handlers"
-	"github.com/yourusername/hytale-server-manager/internal/api/middleware"
-	"github.com/yourusername/hytale-server-manager/internal/auth"
-	"github.com/yourusername/hytale-server-manager/internal/config"
-	"github.com/yourusername/hytale-server-manager/internal/console"
-	"github.com/yourusername/hytale-server-manager/internal/database"
-	"github.com/yourusername/hytale-server-manager/internal/logging"
-	"github.com/yourusername/hytale-server-manager/internal/permissions"
-	"github.com/yourusername/hytale-server-manager/internal/server"
-	"github.com/yourusername/hytale-server-manager/internal/ssh"
-	"github.com/yourusername/hytale-server-manager/internal/websocket"
+	"github.com/TheGojiOG/HytaleSM/internal/api/handlers"
+	"github.com/TheGojiOG/HytaleSM/internal/api/middleware"
+	"github.com/TheGojiOG/HytaleSM/internal/auth"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/console"
+	"github.com/TheGojiOG/HytaleSM/internal/database"
+	"github.com/TheGojiOG/HytaleSM/internal/logging"
+	"github.com/TheGojiOG/HytaleSM/internal/permissions"
+	"github.com/TheGojiOG/HytaleSM/internal/server"
+	"github.com/TheGojiOG/HytaleSM/internal/ssh"
+	"github.com/TheGojiOG/HytaleSM/internal/websocket"
 )
 
 // SetupRouter configures and returns the HTTP router

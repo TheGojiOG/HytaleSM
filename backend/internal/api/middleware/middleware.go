@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/hytale-server-manager/internal/config"
-	"github.com/yourusername/hytale-server-manager/internal/logging"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/logging"
 )
 
 // CORS middleware adds CORS headers

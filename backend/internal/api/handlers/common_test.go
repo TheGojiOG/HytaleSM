@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/yourusername/hytale-server-manager/internal/server"
+	"github.com/TheGojiOG/HytaleSM/internal/server"
 )
 
 // MockProcessManager implements server.ProcessManager for testing

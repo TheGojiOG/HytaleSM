@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/yourusername/hytale-server-manager/internal/database"
+	"github.com/TheGojiOG/HytaleSM/internal/database"
 )
 
 func TestRBACManagerHasPermission(t *testing.T) {

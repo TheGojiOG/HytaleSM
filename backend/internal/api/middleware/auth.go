@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/hytale-server-manager/internal/auth"
+	"github.com/TheGojiOG/HytaleSM/internal/auth"
 )
 
 const accessTokenCookieName = "hsm_access"

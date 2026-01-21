@@ -1,4 +1,4 @@
-module github.com/yourusername/hytale-server-manager
+module github.com/TheGojiOG/HytaleSM
 
 go 1.23.0
 

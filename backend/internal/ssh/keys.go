@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	crypto "github.com/yourusername/hytale-server-manager/internal/crypto"
+	crypto "github.com/TheGojiOG/HytaleSM/internal/crypto"
 )
 
 const encryptedKeyHeader = "ENC1\n"

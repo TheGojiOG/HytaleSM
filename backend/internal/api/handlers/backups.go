@@ -9,12 +9,12 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/hytale-server-manager/internal/api/middleware"
-	"github.com/yourusername/hytale-server-manager/internal/auth"
-	"github.com/yourusername/hytale-server-manager/internal/backup"
-	"github.com/yourusername/hytale-server-manager/internal/config"
-	"github.com/yourusername/hytale-server-manager/internal/permissions"
-	"github.com/yourusername/hytale-server-manager/internal/ssh"
+	"github.com/TheGojiOG/HytaleSM/internal/api/middleware"
+	"github.com/TheGojiOG/HytaleSM/internal/auth"
+	"github.com/TheGojiOG/HytaleSM/internal/backup"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/permissions"
+	"github.com/TheGojiOG/HytaleSM/internal/ssh"
 )
 
 // BackupHandler handles backup-related HTTP requests

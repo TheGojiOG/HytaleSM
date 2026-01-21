@@ -47,7 +47,7 @@ ensure_env_secret() {
   if [[ -n "${!name:-}" ]]; then
     value="${!name}"
   elif [[ -f "$env_file" ]]; then
-    value="$(grep -E "^${name}=" "$env_file" | head -n1 | cut -d= -f2-)"
+    value="$(grep -E "^${name}=" "$env_file" | head -n1 | cut -d= -f2- || true)"
   fi
 
   if [[ -z "$value" ]]; then

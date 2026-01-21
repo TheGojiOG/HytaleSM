@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/hytale-server-manager/internal/auth"
-	"github.com/yourusername/hytale-server-manager/internal/models"
+	"github.com/TheGojiOG/HytaleSM/internal/auth"
+	"github.com/TheGojiOG/HytaleSM/internal/models"
 )
 
 // UserHandler handles user management requests

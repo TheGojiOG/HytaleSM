@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/hytale-server-manager/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
 )
 
 type SettingsHandler struct {

@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/yourusername/hytale-server-manager/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
 )
 
 func TestInitAndCloseLogger(t *testing.T) {

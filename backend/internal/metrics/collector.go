@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yourusername/hytale-server-manager/internal/config"
-	"github.com/yourusername/hytale-server-manager/internal/database"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/database"
 )
 
 type Collector struct {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/yourusername/hytale-server-manager/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 

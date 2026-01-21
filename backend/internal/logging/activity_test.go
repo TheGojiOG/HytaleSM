@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yourusername/hytale-server-manager/internal/database"
+	"github.com/TheGojiOG/HytaleSM/internal/database"
 )
 
 func TestActivityLoggerLogActivity(t *testing.T) {

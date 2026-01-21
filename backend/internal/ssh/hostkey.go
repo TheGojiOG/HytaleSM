@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/yourusername/hytale-server-manager/internal/logging"
+	"github.com/TheGojiOG/HytaleSM/internal/logging"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 )

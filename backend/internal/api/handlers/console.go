@@ -12,13 +12,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"github.com/yourusername/hytale-server-manager/internal/auth"
-	"github.com/yourusername/hytale-server-manager/internal/config"
-	"github.com/yourusername/hytale-server-manager/internal/console"
-	"github.com/yourusername/hytale-server-manager/internal/permissions"
-	"github.com/yourusername/hytale-server-manager/internal/server"
-	"github.com/yourusername/hytale-server-manager/internal/ssh"
-	ws "github.com/yourusername/hytale-server-manager/internal/websocket"
+	"github.com/TheGojiOG/HytaleSM/internal/auth"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/console"
+	"github.com/TheGojiOG/HytaleSM/internal/permissions"
+	"github.com/TheGojiOG/HytaleSM/internal/server"
+	"github.com/TheGojiOG/HytaleSM/internal/ssh"
+	ws "github.com/TheGojiOG/HytaleSM/internal/websocket"
 )
 
 // ConsoleHandler handles console-related HTTP and WebSocket requests

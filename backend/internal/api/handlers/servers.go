@@ -25,17 +25,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/sftp"
-	"github.com/yourusername/hytale-server-manager/internal/agentcert"
-	"github.com/yourusername/hytale-server-manager/internal/auth"
-	"github.com/yourusername/hytale-server-manager/internal/config"
-	crypto "github.com/yourusername/hytale-server-manager/internal/crypto"
-	"github.com/yourusername/hytale-server-manager/internal/database"
-	"github.com/yourusername/hytale-server-manager/internal/logging"
-	"github.com/yourusername/hytale-server-manager/internal/models"
-	"github.com/yourusername/hytale-server-manager/internal/releases"
-	"github.com/yourusername/hytale-server-manager/internal/server"
-	"github.com/yourusername/hytale-server-manager/internal/ssh"
-	ws "github.com/yourusername/hytale-server-manager/internal/websocket"
+	"github.com/TheGojiOG/HytaleSM/internal/agentcert"
+	"github.com/TheGojiOG/HytaleSM/internal/auth"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
+	crypto "github.com/TheGojiOG/HytaleSM/internal/crypto"
+	"github.com/TheGojiOG/HytaleSM/internal/database"
+	"github.com/TheGojiOG/HytaleSM/internal/logging"
+	"github.com/TheGojiOG/HytaleSM/internal/models"
+	"github.com/TheGojiOG/HytaleSM/internal/releases"
+	"github.com/TheGojiOG/HytaleSM/internal/server"
+	"github.com/TheGojiOG/HytaleSM/internal/ssh"
+	ws "github.com/TheGojiOG/HytaleSM/internal/websocket"
 )
 
 // ServerHandler handles server management requests

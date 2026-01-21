@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/pkg/sftp"
-	sshclient "github.com/yourusername/hytale-server-manager/internal/ssh"
+	sshclient "github.com/TheGojiOG/HytaleSM/internal/ssh"
 	xssh "golang.org/x/crypto/ssh"
 )
 

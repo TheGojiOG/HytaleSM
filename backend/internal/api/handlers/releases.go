@@ -13,12 +13,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourusername/hytale-server-manager/internal/auth"
-	"github.com/yourusername/hytale-server-manager/internal/config"
-	"github.com/yourusername/hytale-server-manager/internal/database"
-	"github.com/yourusername/hytale-server-manager/internal/logging"
-	"github.com/yourusername/hytale-server-manager/internal/releases"
-	ws "github.com/yourusername/hytale-server-manager/internal/websocket"
+	"github.com/TheGojiOG/HytaleSM/internal/auth"
+	"github.com/TheGojiOG/HytaleSM/internal/config"
+	"github.com/TheGojiOG/HytaleSM/internal/database"
+	"github.com/TheGojiOG/HytaleSM/internal/logging"
+	"github.com/TheGojiOG/HytaleSM/internal/releases"
+	ws "github.com/TheGojiOG/HytaleSM/internal/websocket"
 )
 
 type ReleaseHandler struct {

@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/sftp"
-	"github.com/yourusername/hytale-server-manager/internal/ssh"
+	"github.com/TheGojiOG/HytaleSM/internal/ssh"
 )
 
 // BackupManager orchestrates backup operations

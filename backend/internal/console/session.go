@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yourusername/hytale-server-manager/internal/ssh"
-	"github.com/yourusername/hytale-server-manager/internal/websocket"
+	"github.com/TheGojiOG/HytaleSM/internal/ssh"
+	"github.com/TheGojiOG/HytaleSM/internal/websocket"
 )
 
 // Session represents an active console session

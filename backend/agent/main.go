@@ -18,9 +18,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/yourusername/hytale-server-manager/agent/config"
-	"github.com/yourusername/hytale-server-manager/agent/ports"
-	"github.com/yourusername/hytale-server-manager/agent/systemd"
+	"github.com/TheGojiOG/HytaleSM/agent/config"
+	"github.com/TheGojiOG/HytaleSM/agent/ports"
+	"github.com/TheGojiOG/HytaleSM/agent/systemd"
+	"github.com/TheGojiOG/HytaleSM/agent/transport"
 )
 
 const agentVersion = "0.1.0"

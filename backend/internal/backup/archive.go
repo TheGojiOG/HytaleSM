@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yourusername/hytale-server-manager/internal/ssh"
+	"github.com/TheGojiOG/HytaleSM/internal/ssh"
 )
 
 // ArchiveHandler creates and manages tar.gz archives via SSH
